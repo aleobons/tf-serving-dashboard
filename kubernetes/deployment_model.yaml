@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tensorflow-model
+  template:
+    metadata:
+      labels:
+        app: tensorflow-model
+    spec:
+      containers:
+        - name: tensorflow-model-container
+          imagePullPolicy: IfNotPresent
+          args:
+            - --model_config_file=/models/models.config
+            - --allow_version_labels_for_unavailable_models=true
+            - --monitoring_config_file=/models/monitoring.config
+          image: tensorflow/serving
+          ports:
+            - containerPort: 8501
+            - containerPort: 8500
+          resources:
+            requests:
+              memory: 1000M
+              cpu: 2000m
+            limits:
+              memory: 3500M
+              cpu: 4000m
+          volumeMounts:
+            - name: tensorflow-model-volume
+              mountPath: /models
+      restartPolicy: Always
+      volumes:
+        - name: tensorflow-model-volume
+          hostPath:
+            path: /var/tmp/models
+            type: Directory

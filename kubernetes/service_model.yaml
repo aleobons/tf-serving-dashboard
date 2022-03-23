@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-service
+  namespace: default
+  labels:
+    app: tensorflow-model
+spec:
+  type: NodePort
+  ports:
+    - name: tensorflow-model-grpc
+      port: 8500
+      targetPort: 8500
+      nodePort: 30000
+    - name: tensorflow-model-rest
+      port: 8501
+      targetPort: 8501
+      nodePort: 30001
+  selector:
+    app: tensorflow-model
